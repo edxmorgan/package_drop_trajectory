@@ -28,7 +28,7 @@
 import numpy as np
 from scipy.integrate import solve_ivp
 
-def package_dynamics(t, state, air_density, drag_coef, package_mass, wind_velocity, g):
+def package_dynamics(t, state, air_density, drag_area, package_mass, wind_velocity, g):
     # Unpack the current state
     x, y, z, vx, vy, vz = state
 
@@ -37,7 +37,7 @@ def package_dynamics(t, state, air_density, drag_coef, package_mass, wind_veloci
     relative_velocity_mag = np.linalg.norm(relative_velocity)
 
     # Calculate drag force based on relative velocity
-    drag_force = -0.5 * drag_coef * air_density * relative_velocity_mag * relative_velocity
+    drag_force = -0.5 * drag_area * air_density * relative_velocity_mag * relative_velocity
 
     # Acceleration due to gravity and drag
     ax, ay, az = drag_force / package_mass
@@ -48,7 +48,7 @@ def package_dynamics(t, state, air_density, drag_coef, package_mass, wind_veloci
 
 
 
-def hit_ground_event(t, state, air_density, drag_coef, package_mass, wind_velocity, g):
+def hit_ground_event(t, state, air_density, drag_area, package_mass, wind_velocity, g):
     # Event function to stop the integration when the package hits the ground
     return state[2]  # Z-position
 
@@ -57,7 +57,10 @@ hit_ground_event.terminal = True
 hit_ground_event.direction = -1
 
 
-def simulate_package_drop(height, aircraft_velocity, wind_velocity, air_density, drag_coef, package_mass=1.0, g=9.81):
+def simulate_package_drop(initial_conditions, drag_area):
+    # Unpack initial conditions
+    height, aircraft_velocity, wind_velocity, air_density, package_mass, g = initial_conditions
+
     # Initial conditions: x, y, z, vx, vy, vz
     initial_state = [0, 0, height] + list(aircraft_velocity)
     
@@ -66,7 +69,7 @@ def simulate_package_drop(height, aircraft_velocity, wind_velocity, air_density,
 
     # Solve the differential equations
     sol = solve_ivp(package_dynamics, t_span, initial_state, 
-                    args=(air_density, drag_coef, package_mass, wind_velocity, g), 
+                    args=(air_density, drag_area, package_mass, wind_velocity, g), 
                     events=hit_ground_event)
 
     # Check if the package reached the ground
@@ -74,6 +77,6 @@ def simulate_package_drop(height, aircraft_velocity, wind_velocity, air_density,
         # Get the final North and East position at the ground hit time
         final_north = sol.y[0, -1]
         final_east = sol.y[1, -1]
-        return final_north, final_east
+        return np.array([final_north, final_east])
     else:
         raise ValueError("Package did not reach the ground within the simulation time frame.")
