@@ -13,7 +13,7 @@
 #relative to the point of release of the aircraft.
 
 
-# initial conditions : when released, the package initially has the aircraft's velocity and is affected by wind.
+# initial conditions : when released, the package initially has the aircraft's velocity.
 
 # forces acting on the package: 
 # 1. gravity pulls the package downwards.
