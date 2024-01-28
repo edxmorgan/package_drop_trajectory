@@ -23,11 +23,17 @@
 # 4.equations of motion: the motion of the package can be described using the equations of motion under constant acceleration,
 #   modified for drag and wind.
 
+# preliminaries
+# Delay differential equations are used in the mathematical modeling of systems where the reactions 
+# to the stresses occur not immediately but after a certain non-negligible period of time.
+
 # to tackle the final complication of delayed package ejection, the problem can be simulated using
-#  delay differential equations using numerical methods
-# By including a parameter representing the delay time between the release command and the actual release of the package.
+#  a parametric system of DDE(delay differential equations) with one constant delay and a constant initial history function
+# that can be solved numerically, by including a parameter representing the 
+# delay time between the release command and the actual release of the package in a dde solver.
 # This parameter will influence the initial conditions of your package's trajectory.
-#  An optimization techniques can be applied to estimate the delay parameter along with the other parameters of the model.
+#  An optimization techniques can be applied to solver and the collected data to estimate 
+# the delay parameter along with the other parameters of the model.
 
 import numpy as np
 from scipy.integrate import solve_ivp
@@ -36,10 +42,20 @@ class Dynamics():
     def __init__(self,package_mass, g):
         self.package_mass = package_mass
         self.g = g
-
-    def package_dynamics(self,t, state, air_density, drag_area, package_mass, wind_velocity, g):
+    
+    def package_dynamics(self, t, state, air_density, drag_area, package_mass, wind_velocity, g, delay):
         # Unpack the current state
         x, y, z, vx, vy, vz = state
+
+        # t --> inf , vz --> Ve (steady state descent velocity)
+        # print(vz) 
+
+        # Check if the delay period has passed
+        if t < delay:
+            # During the delay, the package has not yet started moving
+            # Its velocity remains unchanged, and there are no accelerations
+            # constant initial history function
+            return [vx, vy, vz, 0, 0, 0]
 
         # Adjust velocity for wind effect
         relative_velocity = np.array([vx, vy, vz]) - np.array(wind_velocity)
@@ -60,8 +76,7 @@ class Dynamics():
         # Return derivatives of state
         return [vx, vy, vz, ax, ay, az]
 
-
-    def hit_ground_event(self, t, state, air_density, drag_area, package_mass, wind_velocity, g):
+    def hit_ground_event(self, t, state, air_density, drag_area, package_mass, wind_velocity, g, delay):
         # Event function to stop the integration when the package hits the ground
         return state[2]  # Z-position
     
@@ -85,7 +100,7 @@ class Dynamics():
 
         # Solve the differential equations
         sol = solve_ivp(self.package_dynamics, t_span, initial_state, 
-                        args=(air_density, drag_area, self.package_mass, wind_velocity, self.g), 
+                        args=(air_density, drag_area, self.package_mass, wind_velocity, self.g, delay), 
                         events=self.hit_ground_event)
 
         # Check if the package reached the ground
