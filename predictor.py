@@ -40,13 +40,12 @@ class Model():
         #Use non-linear least squares to fit a function, f, to data.
         xdata = data[0]
         ydata = data[1].reshape(-1)
-        delay = 0.5
-        f = lambda x, theta0, theta1, theta2 : self.predict(x, theta0, theta1, theta2, delay).reshape(-1)
-        popt, pcov = curve_fit(f, xdata, ydata, bounds=[(0.1,0.1, 0.1),(10,10,10)])
+        f = lambda x, theta0, theta1, theta2 ,delay : self.predict(x, theta0, theta1, theta2, delay).reshape(-1)
+        popt, pcov = curve_fit(f, xdata, ydata, bounds=[(0.1,0.1, 0.1, 0),(10,10,10, 1)])
         print(f"popt: {popt}")
         print(f"pcov: {pcov}")
         # Evaluate the model on test data
-        test_predictions = self.predict(data[2], popt[0], popt[1], popt[2], delay)
+        test_predictions = self.predict(data[2], popt[0], popt[1], popt[2], popt[3])
 
         # Calculate R^2 score
         r2 = r2_score(data[3], test_predictions)
@@ -79,17 +78,17 @@ if __name__ == "__main__":
     model = Model(package_mass=1, g=9.81)
     df = model.load_data()
     data = model.preprocess_data(df)
-    # model.estimate_parameters(data)
+    model.estimate_parameters(data)
     
     #Example usage with multiple initial conditions
-    i = 90
-    ics = np.array([
-        data[0][i,:]
-    ])
-    optimised_drag_area_0 = 0.28478375
-    optimised_drag_area_1 = 0.29638052
-    optimised_drag_area_2 = 0.57881585
-    optimised_delay = 0.4
-    final_positions = model.predict(ics, optimised_drag_area_0, optimised_drag_area_1, optimised_drag_area_2, optimised_delay)
-    print("Predicted Final Positions (North, East):", final_positions)
-    print("Actual Final Positions (North, East):", data[1][i,:])
+    # i = 90
+    # ics = np.array([
+    #     data[0][i,:]
+    # ])
+    # optimised_drag_area_0 = 0.28478375
+    # optimised_drag_area_1 = 0.29638052
+    # optimised_drag_area_2 = 0.57881585
+    # optimised_delay = 0.4
+    # final_positions = model.predict(ics, optimised_drag_area_0, optimised_drag_area_1, optimised_drag_area_2, optimised_delay)
+    # print("Predicted Final Positions (North, East):", final_positions)
+    # print("Actual Final Positions (North, East):", data[1][i,:])

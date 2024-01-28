@@ -18,16 +18,16 @@
 # forces acting on the package: 
 # 1. gravity pulls the package downwards.
 # 2. drag force opposes the motion of the package. 
-# 3. wind effect: wind adds or substract from the package's velocity in each direction (north, east and down) #for kinematics
+# 3. wind effect: wind adds or substract from the package's velocity in each direction (north, east and down)
 
-# 4.equations of motion: the motion of the package can be described using the equations of motion under constant acceleration, modified
+# 4.equations of motion: the motion of the package can be described using the equations of motion under constant acceleration,
 #   modified for drag and wind.
 
-# to tackle the final complicatoin of delayed package ejection, the problem can be simulated using
+# to tackle the final complication of delayed package ejection, the problem can be simulated using
 #  delay differential equations using numerical methods
-# including a parameter representing the delay time between the release command and the actual release of the package.
+# By including a parameter representing the delay time between the release command and the actual release of the package.
 # This parameter will influence the initial conditions of your package's trajectory.
-#  then optimization techniques are applied to estimate the delay parameter along with other parameters of the model.
+#  An optimization techniques can be applied to estimate the delay parameter along with the other parameters of the model.
 
 import numpy as np
 from scipy.integrate import solve_ivp
@@ -41,13 +41,9 @@ class Dynamics():
         # Unpack the current state
         x, y, z, vx, vy, vz = state
 
-        # print(vz)
-
         # Adjust velocity for wind effect
         relative_velocity = np.array([vx, vy, vz]) - np.array(wind_velocity)
         relative_velocity_mag = np.linalg.norm(relative_velocity)
-
-        # vertical_drag_area = (2*package_mass*self.g) / (air_density*Ve**2)
 
         # Calculate drag force based on relative velocity
         drag_force_x = -0.5 * drag_area[0] * air_density * relative_velocity_mag * relative_velocity[0]
@@ -84,7 +80,7 @@ class Dynamics():
         # GROUND AS REFERENCE
         initial_state = [0, 0, -height] + aircraft_velocity
 
-        # Time span for the simulation
+        # Max tme span for the simulation
         t_span = (0, 100)  # 100 seconds max
 
         # Solve the differential equations
