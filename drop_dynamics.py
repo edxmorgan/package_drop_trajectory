@@ -18,7 +18,7 @@
 # forces acting on the package: 
 # 1. gravity pulls the package downwards.
 # 2. drag force opposes the motion of the package. 
-# 3. wind effect: wind adds or substract from the package's velocity in each direction (north, east and down)
+# 3. wind effect: wind adds or subtract from the package's velocity in each direction (north, east and down)
 
 # 4.equations of motion: the motion of the package can be described using the equations of motion under constant acceleration,
 #   modified for drag and wind.
