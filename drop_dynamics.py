@@ -23,16 +23,21 @@
 # 4.equations of motion: the motion of the package can be described using the equations of motion under constant acceleration, modified
 #   modified for drag and wind.
 
+# to tackle the final complicatoin of delayed package ejection, the problem can be simulated using
+#  delay differential equations using numerical methods
+# including a parameter representing the delay time between the release command and the actual release of the package.
+# This parameter will influence the initial conditions of your package's trajectory.
+#  then optimization techniques are applied to estimate the delay parameter along with other parameters of the model.
+
 import numpy as np
 from scipy.integrate import solve_ivp
 
 class Dynamics():
-    def __init__(self,package_mass, g, Ve):
+    def __init__(self,package_mass, g):
         self.package_mass = package_mass
         self.g = g
-        self.Ve = Ve # steady state velocity = velocity of descent
 
-    def package_dynamics(self,t, state, air_density, drag_area, Ve, package_mass, wind_velocity, g):
+    def package_dynamics(self,t, state, air_density, drag_area, package_mass, wind_velocity, g):
         # Unpack the current state
         x, y, z, vx, vy, vz = state
 
@@ -42,12 +47,12 @@ class Dynamics():
         relative_velocity = np.array([vx, vy, vz]) - np.array(wind_velocity)
         relative_velocity_mag = np.linalg.norm(relative_velocity)
 
-        vertical_drag_area = (2*package_mass*self.g) / (air_density*Ve**2)
+        # vertical_drag_area = (2*package_mass*self.g) / (air_density*Ve**2)
 
         # Calculate drag force based on relative velocity
         drag_force_x = -0.5 * drag_area[0] * air_density * relative_velocity_mag * relative_velocity[0]
         drag_force_y = -0.5 * drag_area[1] * air_density * relative_velocity_mag * relative_velocity[1]
-        drag_force_z = -0.5 * vertical_drag_area * air_density * relative_velocity_mag * relative_velocity[2]
+        drag_force_z = -0.5 * drag_area[2] * air_density * relative_velocity_mag * relative_velocity[2]
 
         # Acceleration due to gravity and drag
         ax = drag_force_x / package_mass
@@ -60,7 +65,7 @@ class Dynamics():
         return [vx, vy, vz, ax, ay, az]
 
 
-    def hit_ground_event(self, t, state, air_density, drag_area,Ve, package_mass, wind_velocity, g):
+    def hit_ground_event(self, t, state, air_density, drag_area, package_mass, wind_velocity, g):
         # Event function to stop the integration when the package hits the ground
         return state[2]  # Z-position
     
@@ -68,7 +73,7 @@ class Dynamics():
     hit_ground_event.terminal = True
     hit_ground_event.direction = 1
 
-    def simulate_package_drop(self, initial_conditions, drag_area, Ve):
+    def simulate_package_drop(self, initial_conditions, drag_area, delay):
         # Unpack initial conditions
         height, aircraft_vel_n, aircraft_vel_e, aircraft_vel_d, wind_vel_n, wind_vel_e, wind_vel_d, air_density = initial_conditions
 
@@ -84,7 +89,7 @@ class Dynamics():
 
         # Solve the differential equations
         sol = solve_ivp(self.package_dynamics, t_span, initial_state, 
-                        args=(air_density, drag_area,Ve, self.package_mass, wind_velocity, self.g), 
+                        args=(air_density, drag_area, self.package_mass, wind_velocity, self.g), 
                         events=self.hit_ground_event)
 
         # Check if the package reached the ground
