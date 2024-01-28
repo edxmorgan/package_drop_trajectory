@@ -63,7 +63,8 @@ class Model():
         ics (numpy.ndarray): array where each row represents a set of initial conditions.
         drag_area0 (float): The drag area value to use for N.
         drag_area1 (float): The drag area value to use for E.
-        Ve (float): steady state descent velocity.
+        drag_area2 (float): The drag area value to use for D.
+        delay (float): how long it takes the package to come out of the plane.
 
         Returns:
         numpy.ndarray: A 2D array where each row represents the final position (North, East) for the corresponding set of initial conditions.
@@ -78,17 +79,18 @@ if __name__ == "__main__":
     model = Model(package_mass=1, g=9.81)
     df = model.load_data()
     data = model.preprocess_data(df)
-    model.estimate_parameters(data)
+    # model.estimate_parameters(data)
     
     #Example usage with multiple initial conditions
-    # i = 90
-    # ics = np.array([
-    #     data[0][i,:]
-    # ])
-    # optimised_drag_area_0 = 0.28478375
-    # optimised_drag_area_1 = 0.29638052
-    # optimised_drag_area_2 = 0.57881585
-    # optimised_delay = 0.4
-    # final_positions = model.predict(ics, optimised_drag_area_0, optimised_drag_area_1, optimised_drag_area_2, optimised_delay)
-    # print("Predicted Final Positions (North, East):", final_positions)
-    # print("Actual Final Positions (North, East):", data[1][i,:])
+    i = 90
+    ics = np.array([
+        data[0][i,:],
+        data[0][i-32,:]
+    ])
+    optimised_drag_area_0 = 0.28478375
+    optimised_drag_area_1 = 0.29638052
+    optimised_drag_area_2 = 0.57881585
+    optimised_delay = 0.4
+    final_positions = model.predict(ics, optimised_drag_area_0, optimised_drag_area_1, optimised_drag_area_2, optimised_delay)
+    print("Predicted Final Positions (North, East):", final_positions)
+    print("Actual Final Positions (North, East):", data[1][i,:],data[1][i-32,:])
