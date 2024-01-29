@@ -23,13 +23,11 @@
 # 4.equations of motion: the motion of the package can be described using the equations of motion under constant acceleration,
 #   modified for drag and wind.
 
-# to tackle the final complication of delayed package ejection, the problem can be simulated using
-#  a parametric system of DDE(delay differential equations) with one constant delay and a constant initial history function
-# that can be solved numerically, by including a parameter representing the 
-# delay time between the release command and the actual release of the package in a dde solver.
-# This parameter will influence the initial conditions of your package's trajectory.
-#  An optimization techniques can be applied to solver and the collected data to estimate 
-# the delay parameter along with the other parameters of the model.
+# To tackle the final complication of delayed package ejection, the problem can be simulated 
+# using a parametric piecewise differential equation with a constant initial history 
+# function that can be solved numerically, by including a parameter representing the  
+# delay time between the release command and the actual release of the package in the ode 
+# solver.
 
 import numpy as np
 from scipy.integrate import solve_ivp
