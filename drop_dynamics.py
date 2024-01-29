@@ -23,10 +23,6 @@
 # 4.equations of motion: the motion of the package can be described using the equations of motion under constant acceleration,
 #   modified for drag and wind.
 
-# preliminaries
-# Delay differential equations are used in the mathematical modeling of systems where the reactions 
-# to the stresses occur not immediately but after a certain non-negligible period of time.
-
 # to tackle the final complication of delayed package ejection, the problem can be simulated using
 #  a parametric system of DDE(delay differential equations) with one constant delay and a constant initial history function
 # that can be solved numerically, by including a parameter representing the 
